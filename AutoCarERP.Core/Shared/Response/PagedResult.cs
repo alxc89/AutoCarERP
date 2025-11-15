@@ -1,6 +1,3 @@
 namespace AutoCarERP.Core.Shared.Response;
 
-public class PagedResult
-{
-    
-}
+public record PagedResult<T>(IReadOnlyList<T> Items, int Page, int PageSize, int TotalCount);

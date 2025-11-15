@@ -1,6 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoCarERP", "AutoCarERP\AutoCarERP.csproj", "{91F28166-1FE7-4B95-B94B-1422CBE755A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoCarERP.API", "AutoCarERP.API\AutoCarERP.API.csproj", "{91F28166-1FE7-4B95-B94B-1422CBE755A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoCarERP.Application", "AutoCarERP.Application\AutoCarERP.Application.csproj", "{F8D6CCFC-32B9-480D-98F5-801A59C6C8BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoCarERP.Core", "AutoCarERP.Core\AutoCarERP.Core.csproj", "{007A06AE-E10C-46AB-A48A-657FC098DD0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoCarERP.Infra", "AutoCarERP.Infra\AutoCarERP.Infra.csproj", "{1EBFBC4A-013A-4110-9FB7-7E46BB79633B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +18,17 @@ Global
 		{91F28166-1FE7-4B95-B94B-1422CBE755A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91F28166-1FE7-4B95-B94B-1422CBE755A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91F28166-1FE7-4B95-B94B-1422CBE755A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8D6CCFC-32B9-480D-98F5-801A59C6C8BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8D6CCFC-32B9-480D-98F5-801A59C6C8BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8D6CCFC-32B9-480D-98F5-801A59C6C8BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8D6CCFC-32B9-480D-98F5-801A59C6C8BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{007A06AE-E10C-46AB-A48A-657FC098DD0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{007A06AE-E10C-46AB-A48A-657FC098DD0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{007A06AE-E10C-46AB-A48A-657FC098DD0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{007A06AE-E10C-46AB-A48A-657FC098DD0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EBFBC4A-013A-4110-9FB7-7E46BB79633B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EBFBC4A-013A-4110-9FB7-7E46BB79633B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EBFBC4A-013A-4110-9FB7-7E46BB79633B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EBFBC4A-013A-4110-9FB7-7E46BB79633B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

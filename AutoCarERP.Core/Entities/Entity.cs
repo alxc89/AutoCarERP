@@ -1,6 +1,10 @@
 namespace AutoCarERP.Core.Entities;
 
-public class Entity
+public abstract class Entity
 {
-    
+    public int Codigo { get; set; }
+
+    public DateTime Created_At { get; set; }
+    public DateTime Updated_At { get; set; }
+    public DateTime Deleted_At { get; set; }
 }
