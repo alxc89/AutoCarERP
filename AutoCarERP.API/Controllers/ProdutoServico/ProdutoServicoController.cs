@@ -1,16 +1,20 @@
 using AutoCarERP.Application.DTOs.ProdutoServico;
 using AutoCarERP.Application.Services.ProdutoServico;
+using AutoCarERP.Core.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AutoCarERP.API.Controllers.ProdutoServico;
 
 [ApiController]
+[Authorize]
 [Route("api/v1/[controller]")]
 public class ProdutoServicoController(IProdutoServicoService produtoServicoService) : ControllerBase
 {
     private readonly IProdutoServicoService _produtoServicoService = produtoServicoService;
 
     [HttpPost("create")]
+    [Authorize(Policy = Permissions.ProdutoServico.Create)]
     public async Task<IActionResult> CreateAsync([FromBody] ProdutoServicoCreateDto dto, CancellationToken ct)
     {
         try
@@ -25,6 +29,7 @@ public class ProdutoServicoController(IProdutoServicoService produtoServicoServi
     }
 
     [HttpGet("get-by-cod/{cod}")]
+    [Authorize(Policy = Permissions.ProdutoServico.Read)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int cod, CancellationToken ct)
     {
         try
@@ -39,6 +44,7 @@ public class ProdutoServicoController(IProdutoServicoService produtoServicoServi
     }
 
     [HttpGet("get-all")]
+    [Authorize(Policy = Permissions.ProdutoServico.Read)]
     public async Task<IActionResult> ListAsync(
         [FromQuery] string? search,
         [FromQuery] int page = 1,
@@ -57,6 +63,7 @@ public class ProdutoServicoController(IProdutoServicoService produtoServicoServi
     }
 
     [HttpPut("update/{cod}")]
+    [Authorize(Policy = Permissions.ProdutoServico.Create)]
     public async Task<IActionResult> UpdateAsync([FromRoute] int cod, [FromBody] ProdutoServicoUpdateDto dto, CancellationToken ct)
     {
         try
@@ -71,6 +78,7 @@ public class ProdutoServicoController(IProdutoServicoService produtoServicoServi
     }
 
     [HttpDelete("delete/{cod}")]
+    [Authorize(Policy = Permissions.ProdutoServico.Create)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int cod, CancellationToken ct)
     {
         try

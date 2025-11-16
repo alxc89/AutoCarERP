@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Linq.Expressions;
+using AutoCarERP.Application.Common.Interfaces;
 using AutoCarERP.Application.DTOs;
 using AutoCarERP.Application.DTOs.ProdutoServico;
 using AutoCarERP.Application.Mappers;
@@ -10,10 +11,12 @@ namespace AutoCarERP.Application.Services.ProdutoServico;
 public class ProdutoServicoService : IProdutoServicoService
 {
     private readonly IEfRepository<Core.Entities.ProdutoServico> _efRepository;
+    private readonly IAuditLogger _auditLogger;
 
-    public ProdutoServicoService(IEfRepository<Core.Entities.ProdutoServico> efRepository)
+    public ProdutoServicoService(IEfRepository<Core.Entities.ProdutoServico> efRepository, IAuditLogger auditLogger)
     {
         _efRepository = efRepository;
+        _auditLogger = auditLogger;
     }
 
     public async Task<ProdutoServicoReadDto?> GetByIdAsync(int codigo, CancellationToken ct = default)
@@ -68,6 +71,7 @@ public class ProdutoServicoService : IProdutoServicoService
         };
 
         await _efRepository.AddAsync(entity, ct);
+        await _auditLogger.LogAsync("ProdutoServico.Create", nameof(Core.Entities.ProdutoServico), entity.Codigo.ToString(), entity, ct);
         return entity.Codigo;
     }
 
@@ -83,6 +87,7 @@ public class ProdutoServicoService : IProdutoServicoService
         entity.Valor = dto.Valor;
 
         await _efRepository.Update(entity);
+        await _auditLogger.LogAsync("ProdutoServico.Update", nameof(Core.Entities.ProdutoServico), entity.Codigo.ToString(), entity, ct);
         return true;
     }
 
@@ -92,6 +97,7 @@ public class ProdutoServicoService : IProdutoServicoService
         if (entity is null) return false;
 
         await _efRepository.DeleteAsync(codigo, ct);
+        await _auditLogger.LogAsync("ProdutoServico.Delete", nameof(Core.Entities.ProdutoServico), codigo.ToString(), null, ct);
         return true;
     }
 }

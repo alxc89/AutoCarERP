@@ -1,17 +1,20 @@
-using System.Net.Http.Headers;
 using AutoCarERP.Application.DTOs.Cliente;
 using AutoCarERP.Application.Services.Cliente;
+using AutoCarERP.Core.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AutoCarERP.API.Controllers.Cliente;
 
 [ApiController]
+[Authorize]
 [Route("api/v1/[controller]")]
 public class ClienteController(IClienteService clienteService) : ControllerBase
 {
     private readonly IClienteService _clienteService = clienteService;
 
     [HttpPost("create")]
+    [Authorize(Policy = Permissions.Cliente.Create)]
     public async Task<IActionResult> CreateAsync([FromBody] ClienteCreateDto req, CancellationToken ct)
     {
         try
@@ -27,6 +30,7 @@ public class ClienteController(IClienteService clienteService) : ControllerBase
     }
 
     [HttpGet("get-by-cod/{cod}")]
+    [Authorize(Policy = Permissions.Cliente.Read)]
     public async Task<IActionResult> GetByIdAsync(int cod, CancellationToken ct)
     {
         try
@@ -42,6 +46,7 @@ public class ClienteController(IClienteService clienteService) : ControllerBase
     }
 
     [HttpGet("get-all")]
+    [Authorize(Policy = Permissions.Cliente.Read)]
     public async Task<IActionResult> ListAsync(
         [FromQuery] string? search,
         [FromQuery] int page = 1,
@@ -63,6 +68,7 @@ public class ClienteController(IClienteService clienteService) : ControllerBase
     }
 
     [HttpPut("update/{cod}")]
+    [Authorize(Policy = Permissions.Cliente.Create)]
     public async Task<IActionResult> Update([FromRoute] int cod, [FromBody] ClienteUpdateDto req, CancellationToken ct)
     {
         try
@@ -78,6 +84,7 @@ public class ClienteController(IClienteService clienteService) : ControllerBase
     }
 
     [HttpDelete("delete/{cod}")]
+    [Authorize(Policy = Permissions.Cliente.Create)]
     public async Task<IActionResult> Delete([FromRoute] int cod, CancellationToken ct)
     {
         try

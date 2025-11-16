@@ -1,16 +1,20 @@
 using AutoCarERP.Application.DTOs.Veiculo;
 using AutoCarERP.Application.Services.Veiculo;
+using AutoCarERP.Core.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AutoCarERP.API.Controllers.Veiculo;
 
 [ApiController]
+[Authorize]
 [Route("api/v1/[controller]")]
 public class VeiculoController(IVeiculoService veiculoService) : ControllerBase
 {
     private readonly IVeiculoService _veiculoService = veiculoService;
 
     [HttpPost("create")]
+    [Authorize(Policy = Permissions.Veiculo.Create)]
     public async Task<IActionResult> CreateAsync([FromBody] VeiculoCreateDto dto, CancellationToken ct)
     {
         try
@@ -25,6 +29,7 @@ public class VeiculoController(IVeiculoService veiculoService) : ControllerBase
     }
 
     [HttpGet("get-by-placa/{placa}")]
+    [Authorize(Policy = Permissions.Veiculo.Read)]
     public async Task<IActionResult> GetByPlacaAsync([FromRoute] string placa, CancellationToken ct)
     {
         try
@@ -39,6 +44,7 @@ public class VeiculoController(IVeiculoService veiculoService) : ControllerBase
     }
 
     [HttpGet("get-all")]
+    [Authorize(Policy = Permissions.Veiculo.Read)]
     public async Task<IActionResult> ListAsync(
         [FromQuery] string? search,
         [FromQuery] int page = 1,
@@ -57,6 +63,7 @@ public class VeiculoController(IVeiculoService veiculoService) : ControllerBase
     }
 
     [HttpPut("update/{cod}")]
+    [Authorize(Policy = Permissions.Veiculo.Create)]
     public async Task<IActionResult> UpdateAsync([FromRoute] int cod, [FromBody] VeiculoUpdateDto dto, CancellationToken ct)
     {
         try
@@ -71,6 +78,7 @@ public class VeiculoController(IVeiculoService veiculoService) : ControllerBase
     }
 
     [HttpDelete("delete/{cod}")]
+    [Authorize(Policy = Permissions.Veiculo.Create)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int cod, CancellationToken ct)
     {
         try

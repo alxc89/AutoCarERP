@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Linq.Expressions;
+using AutoCarERP.Application.Common.Interfaces;
 using AutoCarERP.Application.DTOs;
 using AutoCarERP.Application.DTOs.Veiculo;
 using AutoCarERP.Application.Mappers;
@@ -10,10 +11,12 @@ namespace AutoCarERP.Application.Services.Veiculo;
 public class VeiculoService : IVeiculoService
 {
     private readonly IEfRepository<Core.Entities.Veiculo> _efRepository;
+    private readonly IAuditLogger _auditLogger;
 
-    public VeiculoService(IEfRepository<Core.Entities.Veiculo> efRepository)
+    public VeiculoService(IEfRepository<Core.Entities.Veiculo> efRepository, IAuditLogger auditLogger)
     {
         _efRepository = efRepository;
+        _auditLogger = auditLogger;
     }
 
     public async Task<VeiculoReadDto?> GetByPlacaAsync(string placa, CancellationToken ct = default)
@@ -81,6 +84,7 @@ public class VeiculoService : IVeiculoService
         };
 
         await _efRepository.AddAsync(entity, ct);
+        await _auditLogger.LogAsync("Veiculo.Create", nameof(Core.Entities.Veiculo), entity.Codigo.ToString(), entity, ct);
         return entity.Codigo;
     }
 
@@ -96,6 +100,7 @@ public class VeiculoService : IVeiculoService
         entity.Ano = dto.Ano;
 
         await _efRepository.Update(entity);
+        await _auditLogger.LogAsync("Veiculo.Update", nameof(Core.Entities.Veiculo), entity.Codigo.ToString(), entity, ct);
         return true;
     }
 
@@ -105,6 +110,7 @@ public class VeiculoService : IVeiculoService
         if (entity is null) return false;
 
         await _efRepository.DeleteAsync(codigo, ct);
+        await _auditLogger.LogAsync("Veiculo.Delete", nameof(Core.Entities.Veiculo), codigo.ToString(), null, ct);
         return true;
     }
 }

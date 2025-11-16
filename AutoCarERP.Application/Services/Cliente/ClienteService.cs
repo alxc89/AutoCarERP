@@ -2,6 +2,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoCarERP.Application.Common.Interfaces;
 using AutoCarERP.Application.DTOs;
 using AutoCarERP.Application.DTOs.Cliente;
 using AutoCarERP.Application.Mappers;
@@ -12,10 +13,12 @@ namespace AutoCarERP.Application.Services.Cliente
     public class ClienteService : IClienteService
     {
         private readonly IEfRepository<Core.Entities.Cliente> _efRepository;
+        private readonly IAuditLogger _auditLogger;
 
-        public ClienteService(IEfRepository<Core.Entities.Cliente> efRepository)
+        public ClienteService(IEfRepository<Core.Entities.Cliente> efRepository, IAuditLogger auditLogger)
         {
             _efRepository = efRepository;
+            _auditLogger = auditLogger;
         }
 
         public async Task<ClienteReadDto?> GetByIdAsync(int codigo, CancellationToken ct = default)
@@ -76,6 +79,7 @@ namespace AutoCarERP.Application.Services.Cliente
             };
 
             await _efRepository.AddAsync(entity, ct);
+            await _auditLogger.LogAsync("Cliente.Create", nameof(Core.Entities.Cliente), entity.Codigo.ToString(), entity, ct);
             return entity.Codigo;
         }
 
@@ -92,6 +96,7 @@ namespace AutoCarERP.Application.Services.Cliente
             entity.Email = dto.Email ?? string.Empty;
 
             await _efRepository.Update(entity);
+            await _auditLogger.LogAsync("Cliente.Update", nameof(Core.Entities.Cliente), entity.Codigo.ToString(), entity, ct);
             return true;
         }
 
@@ -101,6 +106,7 @@ namespace AutoCarERP.Application.Services.Cliente
                 .GetByIdAsync(codigo, false, false, ct);
             if (entity is null) return false;
             await _efRepository.DeleteAsync(codigo, ct);
+            await _auditLogger.LogAsync("Cliente.Delete", nameof(Core.Entities.Cliente), codigo.ToString(), null, ct);
             return true;
         }
     }

@@ -1,16 +1,20 @@
 using AutoCarERP.Application.DTOs.OrdemDeServico;
 using AutoCarERP.Application.Services.OrdemDeServico;
+using AutoCarERP.Core.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AutoCarERP.API.Controllers.OrdemDeServico;
 
 [ApiController]
+[Authorize]
 [Route("api/v1/[controller]")]
 public class OrdemDeServicoController(IOrdemDeServicoService ordemDeServicoService) : ControllerBase
 {
     private readonly IOrdemDeServicoService _ordemDeServicoService = ordemDeServicoService;
 
     [HttpPost("create")]
+    [Authorize(Policy = Permissions.OrdemDeServico.Create)]
     public async Task<IActionResult> CreateAsync([FromBody] OrdemDeServicoCreateDto dto, CancellationToken ct)
     {
         try
@@ -25,6 +29,7 @@ public class OrdemDeServicoController(IOrdemDeServicoService ordemDeServicoServi
     }
 
     [HttpGet("get-by-cod/{cod}")]
+    [Authorize(Policy = Permissions.OrdemDeServico.Read)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int cod, CancellationToken ct)
     {
         try
@@ -39,6 +44,7 @@ public class OrdemDeServicoController(IOrdemDeServicoService ordemDeServicoServi
     }
 
     [HttpGet("get-all")]
+    [Authorize(Policy = Permissions.OrdemDeServico.Read)]
     public async Task<IActionResult> ListAsync(
         [FromQuery] string? search,
         [FromQuery] int page = 1,
@@ -57,6 +63,7 @@ public class OrdemDeServicoController(IOrdemDeServicoService ordemDeServicoServi
     }
 
     [HttpPut("update/{cod}")]
+    [Authorize(Policy = Permissions.OrdemDeServico.StatusChange)]
     public async Task<IActionResult> UpdateAsync([FromRoute] int cod, [FromBody] OrdemDeServicoUpdateDto dto, CancellationToken ct)
     {
         try
@@ -71,6 +78,7 @@ public class OrdemDeServicoController(IOrdemDeServicoService ordemDeServicoServi
     }
 
     [HttpDelete("delete/{cod}")]
+    [Authorize(Policy = Permissions.OrdemDeServico.StatusChange)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int cod, CancellationToken ct)
     {
         try

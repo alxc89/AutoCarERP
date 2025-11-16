@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Linq.Expressions;
+using AutoCarERP.Application.Common.Interfaces;
 using AutoCarERP.Application.DTOs;
 using AutoCarERP.Application.DTOs.OrdemDeServico;
 using AutoCarERP.Application.Mappers;
@@ -10,10 +11,12 @@ namespace AutoCarERP.Application.Services.OrdemDeServico;
 public class OrdemDeServicoService : IOrdemDeServicoService
 {
     private readonly IEfRepository<Core.Entities.OrdemDeServico> _efRepository;
+    private readonly IAuditLogger _auditLogger;
 
-    public OrdemDeServicoService(IEfRepository<Core.Entities.OrdemDeServico> efRepository)
+    public OrdemDeServicoService(IEfRepository<Core.Entities.OrdemDeServico> efRepository, IAuditLogger auditLogger)
     {
         _efRepository = efRepository;
+        _auditLogger = auditLogger;
     }
 
     public async Task<OrdemDeServicoReadDto?> GetByIdAsync(int codigo, CancellationToken ct = default)
@@ -72,6 +75,7 @@ public class OrdemDeServicoService : IOrdemDeServicoService
         };
 
         await _efRepository.AddAsync(entity, ct);
+        await _auditLogger.LogAsync("OS.Create", nameof(Core.Entities.OrdemDeServico), entity.Codigo.ToString(), entity, ct);
         return entity.Codigo;
     }
 
@@ -92,6 +96,7 @@ public class OrdemDeServicoService : IOrdemDeServicoService
         entity.Status = dto.Status.Trim();
 
         await _efRepository.Update(entity);
+        await _auditLogger.LogAsync("OS.Update", nameof(Core.Entities.OrdemDeServico), entity.Codigo.ToString(), entity, ct);
         return true;
     }
 
@@ -101,6 +106,7 @@ public class OrdemDeServicoService : IOrdemDeServicoService
         if (entity is null) return false;
 
         await _efRepository.DeleteAsync(codigo, ct);
+        await _auditLogger.LogAsync("OS.Delete", nameof(Core.Entities.OrdemDeServico), codigo.ToString(), null, ct);
         return true;
     }
 }
