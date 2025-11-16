@@ -3,3 +3,5 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+AutoCarERP.API/appsettings.json
+AutoCarERP.API/appsettings.Development.json
