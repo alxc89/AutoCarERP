@@ -6,13 +6,14 @@ public class OrdemDeServico : Entity
 
     public DateTime? HoraFechamento { get; set; }
 
-    // Observação: no PDF estes três campos são textos.
-    // Mantidos como string para ficar 100% fiel ao documento.
-    public string Veiculo { get; set; } = string.Empty;
+    public int VeiculoId { get; set; }
+    public Veiculo Veiculo { get; set; } = null!;
 
-    public string Cliente { get; set; } = string.Empty;
+    public int ClienteId { get; set; }
+    public Cliente Cliente { get; set; } = null!;
 
-    public string ProdutoServico { get; set; } = string.Empty;
+    public int ProdutoServicoId { get; set; }
+    public ProdutoServico ProdutoServico { get; set; } = null!;
 
     public int Quantidade { get; set; }
 

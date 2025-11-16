@@ -15,16 +15,14 @@ public class OrdemDeServicoConfiguration : IEntityTypeConfiguration<OrdemDeServi
         builder.Property(os => os.HoraAbertura)
             .IsRequired();
 
-        builder.Property(os => os.Veiculo)
-            .HasMaxLength(15);
+        builder.Property(os => os.VeiculoId)
+            .IsRequired();
 
-        builder.Property(os => os.Cliente)
-            .IsRequired()
-            .HasMaxLength(30);
+        builder.Property(os => os.ClienteId)
+            .IsRequired();
 
-        builder.Property(os => os.ProdutoServico)
-            .IsRequired()
-            .HasMaxLength(30);
+        builder.Property(os => os.ProdutoServicoId)
+            .IsRequired();
 
         builder.Property(os => os.Quantidade)
             .IsRequired();
@@ -43,5 +41,20 @@ public class OrdemDeServicoConfiguration : IEntityTypeConfiguration<OrdemDeServi
         builder.Property(os => os.Status)
             .IsRequired()
             .HasMaxLength(15);
+
+        builder.HasOne(os => os.Veiculo)
+            .WithMany()
+            .HasForeignKey(os => os.VeiculoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(os => os.Cliente)
+            .WithMany()
+            .HasForeignKey(os => os.ClienteId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(os => os.ProdutoServico)
+            .WithMany()
+            .HasForeignKey(os => os.ProdutoServicoId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
