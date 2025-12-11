@@ -1,9 +1,12 @@
 using AutoCarERP.API.Options;
 using AutoCarERP.API.Services;
 using AutoCarERP.Application.Common.Interfaces;
+using AutoCarERP.Application.Repositories;
 using AutoCarERP.Application.Services.Cliente;
+using AutoCarERP.Application.Services.Dashboard;
 using AutoCarERP.Application.Services.OrdemDeServico;
 using AutoCarERP.Application.Services.ProdutoServico;
+using AutoCarERP.Application.Services.User;
 using AutoCarERP.Application.Services.Veiculo;
 using AutoCarERP.Core.Auth;
 using AutoCarERP.Core.Repositories;
@@ -11,6 +14,7 @@ using AutoCarERP.Infra.EF;
 using AutoCarERP.Infra.EF.Repositories;
 using AutoCarERP.Infra.Identity;
 using AutoCarERP.Infra.Logging;
+using AutoCarERP.Infra.Services.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -26,6 +30,33 @@ var jwtSection = builder.Configuration.GetSection("Jwt");
 builder.Services.Configure<JwtOptions>(jwtSection);
 var jwtOptions = jwtSection.Get<JwtOptions>() ?? throw new InvalidOperationException("Jwt configuration missing");
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SigningKey));
+
+// Configure CORS to allow frontend requests
+var allowedOrigins = builder.Configuration.GetValue<string>("CORS:AllowedOrigins")
+    ?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    ?? new[] { "http://localhost:5173", "http://localhost:5174" };
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        // Se usar *, não pode ter AllowCredentials
+        if (allowedOrigins.Length == 1 && allowedOrigins[0] == "*")
+        {
+            policy.SetIsOriginAllowed(origin => true)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
+        else
+        {
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
+    });
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -97,13 +128,35 @@ builder.Services.AddScoped<IAuditLogger, AuditLogger>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IdentitySeeder>();
 
+
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IVeiculoService, VeiculoService>();
 builder.Services.AddScoped<IProdutoServicoService, ProdutoServicoService>();
 builder.Services.AddScoped<IOrdemDeServicoService, OrdemDeServicoService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped(typeof(IEfRepository<>), typeof(EfRepository<>));
+builder.Services.AddScoped<IOrdemDeServicoRepository, OrdemDeServicoRepository>();
+
 
 var app = builder.Build();
+
+// Aplicar migrations automaticamente no startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+        Console.WriteLine("Migrations aplicadas com sucesso!");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Erro ao aplicar migrations: {ex.Message}");
+        throw;
+    }
+}
 
 using (var scope = app.Services.CreateScope())
 {
@@ -119,6 +172,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();

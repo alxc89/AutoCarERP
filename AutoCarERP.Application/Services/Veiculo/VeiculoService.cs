@@ -19,6 +19,15 @@ public class VeiculoService : IVeiculoService
         _auditLogger = auditLogger;
     }
 
+    public async Task<VeiculoReadDto?> GetByIdAsync(int codigo, CancellationToken ct = default)
+    {
+        var entity = await _efRepository.GetByIdAsync(codigo, false, false, ct);
+        if (entity is null)
+            throw new Exception("Veículo não encontrado.");
+
+        return entity.ToReadDto();
+    }
+
     public async Task<VeiculoReadDto?> GetByPlacaAsync(string placa, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(placa))

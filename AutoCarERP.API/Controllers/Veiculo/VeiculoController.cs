@@ -28,6 +28,21 @@ public class VeiculoController(IVeiculoService veiculoService) : ControllerBase
         }
     }
 
+    [HttpGet("get-by-cod/{cod}")]
+    [Authorize(Policy = Permissions.Veiculo.Read)]
+    public async Task<IActionResult> GetByIdAsync([FromRoute] int cod, CancellationToken ct)
+    {
+        try
+        {
+            var veiculo = await _veiculoService.GetByIdAsync(cod, ct);
+            return StatusCode(StatusCodes.Status200OK, veiculo);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        }
+    }
+
     [HttpGet("get-by-placa/{placa}")]
     [Authorize(Policy = Permissions.Veiculo.Read)]
     public async Task<IActionResult> GetByPlacaAsync([FromRoute] string placa, CancellationToken ct)

@@ -45,16 +45,24 @@ public class OrdemDeServicoConfiguration : IEntityTypeConfiguration<OrdemDeServi
         builder.HasOne(os => os.Veiculo)
             .WithMany()
             .HasForeignKey(os => os.VeiculoId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired();
 
         builder.HasOne(os => os.Cliente)
             .WithMany()
             .HasForeignKey(os => os.ClienteId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired();
 
         builder.HasOne(os => os.ProdutoServico)
             .WithMany()
             .HasForeignKey(os => os.ProdutoServicoId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired();
+
+        // Auto-include navigation properties
+        builder.Navigation(os => os.Cliente).AutoInclude();
+        builder.Navigation(os => os.Veiculo).AutoInclude();
+        builder.Navigation(os => os.ProdutoServico).AutoInclude();
     }
 }

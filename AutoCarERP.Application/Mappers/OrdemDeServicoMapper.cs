@@ -12,9 +12,17 @@ public static class OrdemDeServicoMapper
             Codigo = entity.Codigo,
             HoraAbertura = entity.HoraAbertura,
             HoraFechamento = entity.HoraFechamento,
+            
             VeiculoId = entity.VeiculoId,
+            VeiculoPlaca = entity.Veiculo?.Placa ?? string.Empty,
+            VeiculoModelo = entity.Veiculo != null ? $"{entity.Veiculo.Marca} {entity.Veiculo.Modelo}" : string.Empty,
+            
             ClienteId = entity.ClienteId,
+            ClienteNome = entity.Cliente?.Nome ?? string.Empty,
+            
             ProdutoServicoId = entity.ProdutoServicoId,
+            ProdutoServicoNome = entity.ProdutoServico?.Nome ?? string.Empty,
+            
             Quantidade = entity.Quantidade,
             ValorUnitario = entity.ValorUnitario,
             ValorTotal = entity.ValorTotal,

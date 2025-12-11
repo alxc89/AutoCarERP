@@ -5,6 +5,8 @@ namespace AutoCarERP.Application.Services.Veiculo;
 
 public interface IVeiculoService
 {
+    Task<VeiculoReadDto?> GetByIdAsync(int codigo, CancellationToken ct = default);
+    
     Task<VeiculoReadDto?> GetByPlacaAsync(string placa, CancellationToken ct = default);
 
     Task<PagedResult<VeiculoReadDto>> ListAsync(

@@ -4,6 +4,7 @@ using AutoCarERP.Application.Common.Interfaces;
 using AutoCarERP.Application.DTOs;
 using AutoCarERP.Application.DTOs.OrdemDeServico;
 using AutoCarERP.Application.Mappers;
+using AutoCarERP.Application.Repositories;
 using AutoCarERP.Core.Repositories;
 
 namespace AutoCarERP.Application.Services.OrdemDeServico;
@@ -11,17 +12,22 @@ namespace AutoCarERP.Application.Services.OrdemDeServico;
 public class OrdemDeServicoService : IOrdemDeServicoService
 {
     private readonly IEfRepository<Core.Entities.OrdemDeServico> _efRepository;
+    private readonly IOrdemDeServicoRepository _osRepository;
     private readonly IAuditLogger _auditLogger;
 
-    public OrdemDeServicoService(IEfRepository<Core.Entities.OrdemDeServico> efRepository, IAuditLogger auditLogger)
+    public OrdemDeServicoService(
+        IEfRepository<Core.Entities.OrdemDeServico> efRepository,
+        IOrdemDeServicoRepository osRepository,
+        IAuditLogger auditLogger)
     {
         _efRepository = efRepository;
+        _osRepository = osRepository;
         _auditLogger = auditLogger;
     }
 
     public async Task<OrdemDeServicoReadDto?> GetByIdAsync(int codigo, CancellationToken ct = default)
     {
-        var entity = await _efRepository.GetByIdAsync(codigo, false, false, ct);
+        var entity = await _osRepository.GetByIdWithIncludesAsync(codigo, ct);
         if (entity is null)
             throw new Exception("Ordem de Serviço não encontrada.");
 
@@ -34,26 +40,7 @@ public class OrdemDeServicoService : IOrdemDeServicoService
         int pageSize = 20,
         CancellationToken ct = default)
     {
-        if (page <= 0) page = 1;
-        if (pageSize <= 0) pageSize = 20;
-
-        Expression<Func<Core.Entities.OrdemDeServico, bool>>? predicate = null;
-
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            search = search.Trim();
-            predicate = os =>
-                os.Status.Contains(search) ||
-                os.Observacao.Contains(search);
-        }
-
-        var paged = await _efRepository.GetPagedAsync(
-            filter: predicate,
-            orderBy: q => q.OrderByDescending(os => os.HoraAbertura),
-            page: page,
-            pageSize: pageSize,
-            ct: ct);
-
+        var paged = await _osRepository.GetPagedWithIncludesAsync(search, page, pageSize, ct);
         var itens = paged.Items.Select(os => os.ToReadDto()).ToList();
         return new PagedResult<OrdemDeServicoReadDto>(itens, paged.Page, paged.PageSize, paged.TotalCount);
     }
