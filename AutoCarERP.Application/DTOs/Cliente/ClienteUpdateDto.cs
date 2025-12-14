@@ -5,7 +5,7 @@ namespace AutoCarERP.Application.DTOs.Cliente;
 public class ClienteUpdateDto
 {
     [Required, StringLength(30)]
-    public string Nome { get; set; }
+    public string Nome { get; set; } = string.Empty;
 
     [StringLength(15)]
     public string? Telefone { get; set; }

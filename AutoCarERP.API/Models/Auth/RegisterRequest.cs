@@ -12,4 +12,6 @@ public class RegisterRequest
 
     [Required]
     public string Role { get; set; } = "USER";
+
+    public List<string>? Permissions { get; set; }
 }

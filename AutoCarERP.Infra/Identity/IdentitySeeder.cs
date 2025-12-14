@@ -26,6 +26,23 @@ public class IdentitySeeder
         Permissions.Relatorio.Generate
     ];
 
+    private static readonly string[] ManagerPermissions =
+    [
+        Permissions.Cliente.Create,
+        Permissions.Cliente.Read,
+        Permissions.Veiculo.Create,
+        Permissions.Veiculo.Read,
+        Permissions.ProdutoServico.Create,
+        Permissions.ProdutoServico.Read,
+        Permissions.OrdemDeServico.Create,
+        Permissions.OrdemDeServico.Read,
+        Permissions.OrdemDeServico.ItemAdd,
+        Permissions.OrdemDeServico.StatusChange,
+        Permissions.OrdemDeServico.PaymentUpdate,
+        Permissions.OrdemDeServico.Finalize,
+        Permissions.Relatorio.Generate
+    ];
+
     public IdentitySeeder(
         RoleManager<IdentityRole> roleManager,
         UserManager<IdentityUser> userManager,
@@ -39,6 +56,7 @@ public class IdentitySeeder
     public async Task SeedAsync()
     {
         await EnsureRoleAsync("ADMIN", Permissions.All);
+        await EnsureRoleAsync("MANAGER", ManagerPermissions);
         await EnsureRoleAsync("USER", UserPermissions);
 
         const string adminEmail = "admin@autocarerp.local";

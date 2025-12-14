@@ -1,3 +1,6 @@
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using AutoCarERP.Application.Repositories;
 using AutoCarERP.Core.Entities;
 using AutoCarERP.Core.Repositories;
@@ -16,7 +19,7 @@ public class OrdemDeServicoRepository : IOrdemDeServicoRepository
         _context = context;
     }
 
-    public async Task<OrdemDeServico> GetByIdWithIncludesAsync(int codigo, CancellationToken ct = default)
+    public async Task<OrdemDeServico?> GetByIdWithIncludesAsync(int codigo, CancellationToken ct = default)
     {
         return await _context.OrdensDeServico
             .Include(os => os.Cliente)

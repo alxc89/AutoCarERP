@@ -1,5 +1,8 @@
 using AutoCarERP.API.Models.Auth;
 using AutoCarERP.API.Services;
+using AutoCarERP.Application.DTOs.User;
+using AutoCarERP.Application.Services.User;
+using AutoCarERP.Core.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,36 +14,37 @@ namespace AutoCarERP.API.Controllers.Auth;
 public class AuthController(
     UserManager<IdentityUser> userManager,
     SignInManager<IdentityUser> signInManager,
+    IUserService userService,
     ITokenService tokenService) : ControllerBase
 {
     private readonly UserManager<IdentityUser> _userManager = userManager;
     private readonly SignInManager<IdentityUser> _signInManager = signInManager;
+    private readonly IUserService _userService = userService;
     private readonly ITokenService _tokenService = tokenService;
 
     [HttpPost("register")]
-    [Authorize(Roles = "ADMIN")]
+    [Authorize(Policy = Permissions.Usuario.Create)]
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest request, CancellationToken ct)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var existing = await _userManager.FindByEmailAsync(request.Email);
-        if (existing is not null)
-            return Conflict("Usuário já existe.");
+        var result = await _userService.CreateUserAsync(
+            new CreateUserDto(
+                request.Email,
+                request.Password,
+                request.Role,
+                request.Permissions),
+            ct);
 
-        var user = new IdentityUser
+        if (!result.Success)
         {
-            UserName = request.Email,
-            Email = request.Email,
-            EmailConfirmed = true
-        };
+            if (result.Error == "Usuário já existe.")
+                return Conflict(new { message = result.Error });
 
-        var result = await _userManager.CreateAsync(user, request.Password);
-        if (!result.Succeeded)
-            return BadRequest(result.Errors);
+            return BadRequest(new { message = result.Error ?? "Erro ao criar usuário." });
+        }
 
-        await _userManager.AddToRoleAsync(user, request.Role.ToUpperInvariant());
-
-        return StatusCode(StatusCodes.Status201Created);
+        return StatusCode(StatusCodes.Status201Created, new { userId = result.Value });
     }
 
     [HttpPost("login")]
@@ -54,6 +58,8 @@ public class AuthController(
             return Unauthorized("Credenciais inválidas.");
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, true);
+        if (result.IsLockedOut)
+            return StatusCode(StatusCodes.Status403Forbidden, "Sua conta está desativada. Contate o administrador.");
         if (!result.Succeeded)
             return Unauthorized("Credenciais inválidas.");
 
@@ -89,5 +95,108 @@ public class AuthController(
             RefreshToken = tokens.RefreshToken,
             RefreshTokenExpiresAt = tokens.RefreshTokenExpiresAt
         });
+    }
+
+    [HttpGet("users")]
+    [Authorize(Policy = Permissions.Usuario.Read)]
+    public async Task<IActionResult> ListUsersAsync(
+        [FromQuery] string? search,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] bool includeInactive = false,
+        CancellationToken ct = default)
+    {
+        var result = await _userService.ListUsersAsync(search, page, pageSize, includeInactive, ct);
+        return Ok(result);
+    }
+
+    [HttpGet("users/{id}")]
+    [Authorize(Policy = Permissions.Usuario.Read)]
+    public async Task<IActionResult> GetUserAsync([FromRoute] string id, CancellationToken ct)
+    {
+        var user = await _userService.GetUserByIdAsync(id, ct);
+        return user is null ? NotFound(new { message = "Usuário não encontrado." }) : Ok(user);
+    }
+
+    [HttpPatch("users/{id}/role")]
+    [Authorize(Policy = Permissions.Usuario.Edit)]
+    public async Task<IActionResult> UpdateUserRoleAsync([FromRoute] string id, [FromBody] UpdateRoleRequest request, CancellationToken ct)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        var result = await _userService.UpdateUserRoleAsync(id, new UpdateUserRoleDto(request.Role), ct);
+        if (!result.Success)
+        {
+            if (result.Error == "Usuário não encontrado.")
+                return NotFound(new { message = result.Error });
+            return BadRequest(new { message = result.Error });
+        }
+
+        return Ok(new { message = "Perfil atualizado com sucesso" });
+    }
+
+    [HttpPut("users/{id}/permissions")]
+    [Authorize(Policy = Permissions.Usuario.PermissionsManage)]
+    public async Task<IActionResult> UpdateUserPermissionsAsync(
+        [FromRoute] string id,
+        [FromBody] UpdatePermissionsRequest request,
+        CancellationToken ct)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        var result = await _userService.UpdateUserPermissionsAsync(id, new UpdateUserPermissionsDto(request.Permissions), ct);
+        if (!result.Success)
+        {
+            if (result.Error == "Usuário não encontrado.")
+                return NotFound(new { message = result.Error });
+            return BadRequest(new { message = result.Error });
+        }
+
+        return Ok(new { message = "Permissões atualizadas com sucesso" });
+    }
+
+    [HttpPatch("users/{id}/deactivate")]
+    [Authorize(Policy = Permissions.Usuario.Edit)]
+    public async Task<IActionResult> DeactivateUserAsync([FromRoute] string id, CancellationToken ct)
+    {
+        var result = await _userService.DeactivateUserAsync(id, ct);
+        if (!result.Success)
+        {
+            if (result.Error == "Usuário não encontrado.")
+                return NotFound(new { message = result.Error });
+            return BadRequest(new { message = result.Error });
+        }
+
+        return Ok(new { message = "Usuário desativado com sucesso" });
+    }
+
+    [HttpPatch("users/{id}/activate")]
+    [Authorize(Policy = Permissions.Usuario.Edit)]
+    public async Task<IActionResult> ActivateUserAsync([FromRoute] string id, CancellationToken ct)
+    {
+        var result = await _userService.ActivateUserAsync(id, ct);
+        if (!result.Success)
+        {
+            if (result.Error == "Usuário não encontrado.")
+                return NotFound(new { message = result.Error });
+            return BadRequest(new { message = result.Error });
+        }
+
+        return Ok(new { message = "Usuário reativado com sucesso" });
+    }
+
+    [HttpDelete("users/{id}")]
+    [Authorize(Policy = Permissions.Usuario.Delete)]
+    public async Task<IActionResult> DeleteUserAsync([FromRoute] string id, CancellationToken ct)
+    {
+        var result = await _userService.DeleteUserAsync(id, ct);
+        if (!result.Success)
+        {
+            if (result.Error == "Usuário não encontrado.")
+                return NotFound(new { message = result.Error });
+            return BadRequest(new { message = result.Error });
+        }
+
+        return NoContent();
     }
 }

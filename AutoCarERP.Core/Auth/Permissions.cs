@@ -4,6 +4,23 @@ public static class Permissions
 {
     public const string ClaimType = "perm";
 
+    public static class Perfil
+    {
+        public const string Create = "ROLE_CREATE";
+        public const string Read = "ROLE_READ";
+        public const string Edit = "ROLE_EDIT";
+        public const string Delete = "ROLE_DELETE";
+    }
+
+    public static class Usuario
+    {
+        public const string Create = "USER_CREATE";
+        public const string Read = "USER_READ";
+        public const string Edit = "USER_EDIT";
+        public const string Delete = "USER_DELETE";
+        public const string PermissionsManage = "USER_PERMISSIONS_MANAGE";
+    }
+
     public static class Cliente
     {
         public const string Create = "CLIENT_CREATE";
@@ -39,6 +56,17 @@ public static class Permissions
 
     public static IReadOnlyList<string> All =>
     [
+        Perfil.Create,
+        Perfil.Read,
+        Perfil.Edit,
+        Perfil.Delete,
+
+        Usuario.Create,
+        Usuario.Read,
+        Usuario.Edit,
+        Usuario.Delete,
+        Usuario.PermissionsManage,
+
         Cliente.Create,
         Cliente.Read,
         Veiculo.Create,
